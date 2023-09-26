@@ -1,0 +1,16 @@
+server:
+  port: 7085
+  shutdown: graceful
+
+spring:
+  application:
+    name: lab-elastic
+  profiles:
+    active: dev
+  data:
+    elasticsearch:
+      protocol: http
+      port: 9201
+      host: localhost
+      username: elastic
+      password: changeme
