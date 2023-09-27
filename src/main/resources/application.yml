@@ -9,7 +9,6 @@ spring:
     active: dev
   data:
     elasticsearch:
-      protocol: http
       port: 9201
       host: localhost
       username: elastic

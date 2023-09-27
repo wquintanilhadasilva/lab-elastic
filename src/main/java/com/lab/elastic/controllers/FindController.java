@@ -2,7 +2,6 @@ package com.lab.elastic.controllers;
 
 import com.lab.elastic.services.ElasticRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.xmlbeans.XmlException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +23,7 @@ public class FindController {
 	}
 	
 	@PostMapping("/")
-	public ResponseEntity<?> inserir(@RequestBody Dominio dominio) throws IOException, XmlException {
+	public ResponseEntity<?> inserir(@RequestBody Dominio dominio) throws IOException {
 		repository.index(dominio);
 		return ResponseEntity.ok("ok");
 	}
