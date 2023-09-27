@@ -25,6 +25,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Repository
@@ -36,13 +38,16 @@ public class ElasticRepository {
 	
 	public void index(Dominio dominio) throws IOException, XmlException {
 		
-		wrapper(dominio.getPayload());
 		
 		JsonNode jsonNode = objectMapper.valueToTree(dominio);
+		
+		var result = wrapper(dominio.getPayload());
+		log.info("aaa [{}]", result);
 		
 		xml2JsonNode(dominio.getPayload()).ifPresent(v -> {
 			setPayload(jsonNode, v);
 		});
+		
 	
 		log.info("Log [{}]", jsonNode);
 		
@@ -63,13 +68,17 @@ public class ElasticRepository {
 		
 	}
 	
-	private void wrapper(String xml) throws JsonProcessingException, XmlException {
+	private String wrapper(String xml) throws JsonProcessingException, XmlException {
 		IXmlNfCom nfcom = XmlNfComWrapperFactory.getInstance().getXmlDFe(xml);
-		TNFCom tnfecom = NFComDocument.Factory.parse(xml, XmlOptionsUtil.xmlOption(NFComDocument.type, "http://www.portalfiscal.inf.br/nfcom")).getNFCom();;
+		TNFCom tnfecom = NFComDocument.Factory.parse(xml, XmlOptionsUtil.xmlOption(NFComDocument.type, "http://www.portalfiscal.inf.br/nfcom")).getNFCom();
+		log.info("IXmlNFCom [{}]", nfcom);
+		log.info("TNFCom [{}]", tnfecom);
+		log.info("TNFCom2 [{}]", tnfecom.xmlText());
+		return tnfecom.toString();
 //		inspectObject(nfcom);
 		
-		var json = objectMapper.writeValueAsString(nfcom);
-		log.info("XMl wrapper [{}]", json);
+//		var json = objectMapper.writeValueAsString(nfcom);
+//		log.info("XMl wrapper [{}]", json);
 		
 	}
 	
@@ -79,12 +88,22 @@ public class ElasticRepository {
 		}
 		XmlMapper xmlMapper = new XmlMapper();
 		JsonNode jsonNode = xmlMapper.readTree(xml);
+		
+//
+//		var det = jsonNode.get("infNFCom").get("det");
+//		var parent = (ObjectNode) jsonNode.get("infNFCom");
+//		var array = objectMapper.createArrayNode();
+//		array.add(det);
+//		var p = parent.set("det",array);
+		
+		jsonNode = convertToArray("/infNFCom/det", jsonNode);
+		
 		return Optional.ofNullable(jsonNode);
 	}
 	
 	private JsonNode setPayload(JsonNode source, JsonNode newElement) {
 		ObjectNode src = (ObjectNode) source;
-		src.put("payload", newElement);
+		src.set("payload", newElement);
 		return src;
 	}
 	
@@ -112,6 +131,30 @@ public class ElasticRepository {
 				}
 			}
 		}
+	}
+	
+	
+	private JsonNode convertToArray(String path, JsonNode jsonNode) {
+		Pattern pattern = Pattern.compile("^(.+/)([^/]+)$");
+		Matcher matcher = pattern.matcher(path);
+		
+		if (matcher.matches()) {
+			String primeiroGrupo = matcher.group(1);
+			primeiroGrupo = primeiroGrupo.substring(0, primeiroGrupo.length() -1); //remove a barra ao final
+			String segundoGrupo = matcher.group(2);
+			
+			ObjectNode objectNode = (ObjectNode) jsonNode.at(primeiroGrupo);
+			
+			JsonNode element = jsonNode.at(path);
+			
+			if (!element.isArray()) {
+				var array = objectMapper.createArrayNode();
+				array.add(element);
+				objectNode.set(segundoGrupo, array);
+			}
+			
+		}
+		return  jsonNode;
 	}
 
 }
