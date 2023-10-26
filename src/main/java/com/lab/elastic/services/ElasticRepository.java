@@ -9,13 +9,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.lab.elastic.controllers.Dominio;
+import com.lab.elastic.reader.PathUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -54,6 +59,43 @@ public class ElasticRepository {
 		
 	}
 	
+	public void index(Map<String, ? extends Object> dominio, String payloaField) throws IOException {
+		
+		if (Strings.isBlank(payloaField)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campo Payload não informado!");
+		}
+		
+		var obj = PathUtils.getValue(dominio, "agregado.outro.field");
+		log.info("path [{}]", obj);
+		
+		String payloadString = (String) dominio.getOrDefault(payloaField, null);
+		JsonNode jsonDomain = objectMapper.valueToTree(dominio);
+
+		xml2JsonNode(payloadString).ifPresent(payloadJsonValue -> {
+			setPayload(jsonDomain, payloadJsonValue, payloaField);
+		});
+		
+		log.info("Documento em JSON [{}]", jsonDomain);
+		
+		String json = objectMapper.writeValueAsString(jsonDomain);
+		log.info("str: [{}]", json);
+		Reader input = new StringReader(json);
+		
+		IndexRequest<JsonData> request = IndexRequest.of(i ->
+			i.index("teste-map").withJson(input)
+		);
+		IndexResponse response = elasticsearchClient.index(request);
+		log.info("Retorno [{}]", response);
+		
+		
+		JsonData originalData = JsonData.of(dominio);
+		IndexRequest<JsonData> originalRequestData = IndexRequest.of(i ->
+			i.index("teste-map-original").document(originalData)
+		);
+		IndexResponse r = elasticsearchClient.index(originalRequestData);
+		log.info("Retorno Original [{}]", r);
+	}
+	
 	private Optional<JsonNode> xml2JsonNode(String xml) throws IOException {
 		if (Strings.isBlank(xml)) {
 			return Optional.empty();
@@ -75,8 +117,12 @@ public class ElasticRepository {
 	}
 	
 	private JsonNode setPayload(JsonNode source, JsonNode newElement) {
+		return setPayload(source, newElement, "payload");
+	}
+	
+	private JsonNode setPayload(JsonNode source, JsonNode newElement, String payloadField) {
 		ObjectNode src = (ObjectNode) source;
-		src.set("payload", newElement);
+		src.set(payloadField, newElement);
 		return src;
 	}
 	
