@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: MongoDB2023!
+    ports:
+      - "27017:27017"
+    volumes:
+      - lab_mongo_data:/data/db
+    networks:
+      - lab-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+    container_name: elasticsearch
+    env_file:
+      - ./.env/elasticsearch.env
+    ulimits:
+        memlock:
+            soft: -1
+            hard: -1
+    volumes:
+      - ./relatorios:/usr/share/elasticsearch/data
+    ports:
+      - 9201:9200
+    networks:
+      - lab-network
+
+networks:
+  lab-network:
+    driver: bridge
+
+volumes:
+  lab_mongo_data:

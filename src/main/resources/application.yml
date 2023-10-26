@@ -8,6 +8,14 @@ spring:
   profiles:
     active: dev
   data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: dfe-documentos
+      username: root
+      password: MongoDB2023!
+      authentication-database: admin
+      authentication-mechanism: SCRAM-SHA-256
     elasticsearch:
       port: 9201
       host: localhost
