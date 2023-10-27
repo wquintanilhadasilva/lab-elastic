@@ -18,7 +18,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
  * @since 24/08/2023
  */
 @Configuration
-@EnableMongoRepositories("br.com.oobj.ms.dfe.relatorios.repository.mongo")
+@EnableMongoRepositories("com.lab.elastic.repository")
 public class MongoDbConfig extends AbstractMongoClientConfiguration {
 	
 	@Value("${spring.data.mongodb.database}")
