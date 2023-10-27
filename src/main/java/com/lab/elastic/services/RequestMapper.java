@@ -6,6 +6,7 @@ import com.lab.elastic.repository.entidades.MongoRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Mapeador de Entidade e Agrados para DTO e vice-versa
@@ -25,7 +26,13 @@ public interface RequestMapper {
 	@Mapping(target = "tipoRequisicao", source = "requestType")
 	ElasticRequest toIndex(CreateRequestDto requisicaoDto);
 	
-	@Mapping(target = "cnpj", source = "emissor")
+	@Mapping(target = "cnpj", source="emissor")
+	@Mapping(target = "habilitada", expression = "java(convertBoolean(\"habilitada\", data))")
 	CreateRequestDto toDto(Map<String, String> data);
+	
+	default Boolean convertBoolean(String field, Map<String, ? extends Object> data) {
+		return Optional.ofNullable(data.getOrDefault(field, null)).map(v -> Boolean.parseBoolean(v.toString()))
+				.orElse(false);
+	}
 
 }
