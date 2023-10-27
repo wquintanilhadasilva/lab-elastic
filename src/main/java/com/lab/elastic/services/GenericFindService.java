@@ -1,7 +1,7 @@
-package com.lab.elastic.services;
-
-public class GenericFindService {
-
-
-
-}
+//package com.lab.elastic.services;
+//
+//public class GenericFindService {
+//
+//
+//
+//}

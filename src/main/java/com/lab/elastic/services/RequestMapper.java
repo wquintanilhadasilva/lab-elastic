@@ -1,8 +1,5 @@
 package com.lab.elastic.services;
 
-import br.com.oobj.ms.dfe.relatorios.domain.documents.elasticsearch.ElasticRequest;
-import br.com.oobj.ms.dfe.relatorios.domain.documents.mongodb.MongoRequest;
-import br.com.oobj.ms.dfe.relatorios.service.dto.CreateRequestDto;
 import com.lab.elastic.dto.CreateRequestDto;
 import com.lab.elastic.repository.entidades.ElasticRequest;
 import com.lab.elastic.repository.entidades.MongoRequest;

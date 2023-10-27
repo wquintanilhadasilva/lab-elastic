@@ -1,13 +1,8 @@
 package com.lab.elastic.services;
 
-import br.com.oobj.lib.dfe.comum.support.RetryableOperation;
-import br.com.oobj.lib.dfe.comum.util.DateTimeUtils;
-import br.com.oobj.ms.dfe.relatorios.domain.documents.mongodb.MongoRequest;
-import br.com.oobj.ms.dfe.relatorios.repository.mongo.MongoRequestRepository;
-import br.com.oobj.ms.dfe.relatorios.service.CreateRequestResolver;
-import br.com.oobj.ms.dfe.relatorios.service.dto.CreateRequestDto;
-import br.com.oobj.ms.dfe.relatorios.service.mapper.RequestMapper;
+import com.lab.elastic.dto.CreateRequestDto;
 import com.lab.elastic.repository.MongoRequestRepository;
+import com.lab.elastic.repository.entidades.MongoRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -26,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE) // Coloca primeiro no MongoDB
-public class CreateRequestMongo implements CreateRequestResolver, RetryableOperation {
+public class CreateRequestMongo implements CreateRequestResolver {
 	
 	private final List<CreateRequestResolver> createServices;
 	private final MongoRequestRepository mongoRequestRepository;
@@ -45,7 +40,7 @@ public class CreateRequestMongo implements CreateRequestResolver, RetryableOpera
 		// Configura a data de armazenamento da requisição
 		mongoRequest.setDataArmazenamento(DateTimeUtils.AMERICA_SAO_PAULO.now());
 		// Grava no mongoDB os dados sem o payload
-		var result = throwRetryableExceptionIfFail(() -> mongoRequestRepository.insert(mongoRequest));
+		var result =  mongoRequestRepository.insert(mongoRequest);
 		log.debug("Requisição [{}] inserida no mongoDB", result.getId());
 	}
 	

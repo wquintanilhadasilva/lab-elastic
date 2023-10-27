@@ -1,14 +1,8 @@
 package com.lab.elastic.services;
 
-import br.com.oobj.lib.dfe.comum.domain.enumeration.ModeloType;
-import br.com.oobj.lib.dfe.comum.support.RetryableOperation;
-import br.com.oobj.lib.dfe.comum.util.DateTimeUtils;
-import br.com.oobj.ms.dfe.relatorios.modules.base.conversor.PayloadConverter;
-import br.com.oobj.ms.dfe.relatorios.repository.elasticsearc.ElasticRequestRepository;
-import br.com.oobj.ms.dfe.relatorios.service.CreateRequestResolver;
-import br.com.oobj.ms.dfe.relatorios.service.dto.CreateRequestDto;
-import br.com.oobj.ms.dfe.relatorios.service.mapper.RequestMapper;
+import com.lab.elastic.dto.CreateRequestDto;
 import com.lab.elastic.repository.ElasticRequestRepository;
+import com.lab.elastic.services.converters.PayloadConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +20,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CreateRequestElastic implements CreateRequestResolver, RetryableOperation {
+public class CreateRequestElastic implements CreateRequestResolver {
 	
 	private final ElasticRequestRepository elasticSearchRepository;
 	private final RequestMapper requestMapper;

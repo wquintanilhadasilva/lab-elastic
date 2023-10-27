@@ -1,6 +1,6 @@
 package com.lab.elastic.services;
 
-import br.com.oobj.ms.dfe.relatorios.service.dto.CreateRequestDto;
+import com.lab.elastic.dto.CreateRequestDto;
 
 /**
  * Serviço para criar uma nova requisição
