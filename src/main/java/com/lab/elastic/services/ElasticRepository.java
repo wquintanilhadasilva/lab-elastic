@@ -37,6 +37,10 @@ public class ElasticRepository implements ElasticRequestRepository {
 	private final ElasticsearchClient elasticsearchClient;
 	private final ObjectMapper objectMapper;
 	
+	private static final String PAYLOAD_FIELD = "payload";
+	private static final String PAYLOADKEY_FIELD = "payloadField";
+	private static final String REQUESTID_FIELD = "requestid";
+	
 	private Pattern pattern = Pattern.compile("^(.+/)([^/]+)$");
 	
 	public void index(Dominio dominio) throws IOException {
@@ -79,10 +83,10 @@ public class ElasticRepository implements ElasticRequestRepository {
 		log.info("path [{}]", obj);
 		
 		//Inclui o campo que identifica o atributo payload na estrutura armazenada
-		dominio.put("payloadField", payloaField);
+		dominio.put(PAYLOADKEY_FIELD, payloaField);
 		
-		//Limpa o conteúdo do payload da requisição original
-		dominio.put(payloaField, null);
+		//Limpa o conteúdo do campo payload da requisição original
+		dominio.remove(payloaField);
 		
 		JsonNode jsonDomain = objectMapper.valueToTree(dominio);
 		
@@ -113,13 +117,13 @@ public class ElasticRepository implements ElasticRequestRepository {
 	
 	private void indexPayload(String payload, String requestid) throws IOException {
 		Map<String, Object> jsonMap = new HashMap<>();
-		jsonMap.put("requestid", requestid);
-		jsonMap.put("payload", payload);
+		jsonMap.put(REQUESTID_FIELD, requestid);
+		jsonMap.put(PAYLOAD_FIELD, payload);
 		
 		JsonNode jsonNode = objectMapper.valueToTree(jsonMap);
 		
 		xml2JsonNode(payload).ifPresent(payloadJsonValue -> {
-			setPayload(jsonNode, payloadJsonValue, "payload");
+			setPayload(jsonNode, payloadJsonValue, PAYLOAD_FIELD);
 		});
 		
 		String json = objectMapper.writeValueAsString(jsonNode);
@@ -128,7 +132,8 @@ public class ElasticRepository implements ElasticRequestRepository {
 		
 		IndexRequest<JsonData> request = IndexRequest.of(i ->
 				i.index("teste-map-original-payload")
-						.withJson(input)
+					.id(requestid)
+					.withJson(input)
 		);
 		
 		IndexResponse response = elasticsearchClient.index(request);
@@ -216,8 +221,32 @@ public class ElasticRepository implements ElasticRequestRepository {
 	@Override
 	public Optional<Map<String, Object>> find(String id) {
 		var result = Optional.empty();
-		Optional<?> opt = this.searchById(id, "teste-map-original-payload", Map.class);
-		return (Optional<Map<String, Object>>) opt;
+//		Optional<?> opt = this.searchById(id, "teste-map-original-payload", Map.class);
+		Optional<?> original = this.searchById(id, "teste-map-original", Map.class);
+		
+		if (original.isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Requisição não encontrada!");
+		}
+		
+		Map<String,Object> requisicao = (Map<String, Object>) original.get();
+		
+		//Adiciona o conteúdo enviado
+		String payloadKey = requisicao.get(PAYLOADKEY_FIELD).toString();
+		requisicao.put(payloadKey, null);
+		
+		//Remove o atributo que contém a chave do campo id;
+		requisicao.remove(PAYLOADKEY_FIELD);
+		
+		// Agora pega o json resultante que está noutra collection...
+		Optional<?> json = this.searchById(id, "teste-map-original-payload", Map.class);
+		if (json.isPresent()) {
+			var temp = (Map<String, Object>) json.get();
+			var payload = (Map<String, Object>) temp.get(PAYLOAD_FIELD);
+			//Substitiu pelo conteúdo enviado que foi encontrado
+			requisicao.put(payloadKey, payload);
+		}
+		
+		return Optional.ofNullable(requisicao);
 	}
 	
 	public <T> Optional<T> searchById(String id, String index, Class<T> classz) {
