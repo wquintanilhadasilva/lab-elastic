@@ -33,7 +33,7 @@ public class FindController {
 	}
 	
 	@PostMapping("/map")
-	public ResponseEntity<?> inserir(@RequestParam(name = "payload")String payloaField, @RequestBody Map<String, ?> dados) throws IOException {
+	public ResponseEntity<?> inserir(@RequestParam(name = "payload")String payloaField, @RequestBody Map<String, Object> dados) throws IOException {
 		log.info("Dados enviados [{}], campo payload [{}]", dados, payloaField);
 		repository.index(dados, payloaField);
 		return ResponseEntity.ok(dados);

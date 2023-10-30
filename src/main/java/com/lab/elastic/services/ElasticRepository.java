@@ -1,6 +1,7 @@
 package com.lab.elastic.services;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.GetResponse;
 import co.elastic.clients.elasticsearch.core.IndexRequest;
 import co.elastic.clients.elasticsearch.core.IndexResponse;
 import co.elastic.clients.json.JsonData;
@@ -10,6 +11,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.lab.elastic.controllers.Dominio;
 import com.lab.elastic.reader.PathUtils;
+import com.lab.elastic.repository.ElasticRequestRepository;
+import com.lab.elastic.repository.entidades.CollectionsIndexHelper;
+import com.lab.elastic.repository.entidades.ElasticRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -19,8 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,7 +32,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @Repository
 @Slf4j
-public class ElasticRepository {
+public class ElasticRepository implements ElasticRequestRepository {
 	
 	private final ElasticsearchClient elasticsearchClient;
 	private final ObjectMapper objectMapper;
@@ -59,21 +63,28 @@ public class ElasticRepository {
 		
 	}
 	
-	public void index(Map<String, ? extends Object> dominio, String payloaField) throws IOException {
+	public void index(Map<String, Object> dominio, String payloaField) throws IOException {
 		
 		if (Strings.isBlank(payloaField)) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campo Payload não informado!");
 		}
+		String payloadString = (String) dominio.getOrDefault(payloaField, null);
 		
+		if (Strings.isBlank(payloadString)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Campo Payload nulo ou vazio!");
+		}
+		
+		// Teste do leitor dinâmico de propriedade
 		var obj = PathUtils.getValue(dominio, "agregado.outro.field");
 		log.info("path [{}]", obj);
 		
-		String payloadString = (String) dominio.getOrDefault(payloaField, null);
+		//Inclui o campo que identifica o atributo payload na estrutura armazenada
+		dominio.put("payloadField", payloaField);
+		
+		//Limpa o conteúdo do payload da requisição original
+		dominio.put(payloaField, null);
+		
 		JsonNode jsonDomain = objectMapper.valueToTree(dominio);
-
-		xml2JsonNode(payloadString).ifPresent(payloadJsonValue -> {
-			setPayload(jsonDomain, payloadJsonValue, payloaField);
-		});
 		
 		log.info("Documento em JSON [{}]", jsonDomain);
 		
@@ -93,7 +104,36 @@ public class ElasticRepository {
 			i.index("teste-map-original").document(originalData)
 		);
 		IndexResponse r = elasticsearchClient.index(originalRequestData);
-		log.info("Retorno Original [{}]", r);
+		log.info("Resposta Elastic [{}]", dominio);
+		dominio.put("id", r.id());
+		log.info("Retorno Original [{}]", dominio);
+		
+		indexPayload(payloadString,r.id());
+	}
+	
+	private void indexPayload(String payload, String requestid) throws IOException {
+		Map<String, Object> jsonMap = new HashMap<>();
+		jsonMap.put("requestid", requestid);
+		jsonMap.put("payload", payload);
+		
+		JsonNode jsonNode = objectMapper.valueToTree(jsonMap);
+		
+		xml2JsonNode(payload).ifPresent(payloadJsonValue -> {
+			setPayload(jsonNode, payloadJsonValue, "payload");
+		});
+		
+		String json = objectMapper.writeValueAsString(jsonNode);
+		log.info("Payload convertido: [{}]", json);
+		Reader input = new StringReader(json);
+		
+		IndexRequest<JsonData> request = IndexRequest.of(i ->
+				i.index("teste-map-original-payload")
+						.withJson(input)
+		);
+		
+		IndexResponse response = elasticsearchClient.index(request);
+		log.info("Payload gravado [{}]", response);
+		
 	}
 	
 	private Optional<JsonNode> xml2JsonNode(String xml) throws IOException {
@@ -148,5 +188,43 @@ public class ElasticRepository {
 			
 		}
 	}
-
+	
+	@Override
+	public ElasticRequest save(ElasticRequest req) {
+	
+		IndexRequest<ElasticRequest> request = IndexRequest.of(i ->
+				i.index(CollectionsIndexHelper.REQUISICAO_INDEX)
+						.document(req)
+		);
+		
+		IndexResponse response = null;
+		try {
+			response = elasticsearchClient.index(request);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		req.setId(response.id());
+		log.info("Retorno [{}]", response);
+		return req;
+	}
+	
+	@Override
+	public Optional<ElasticRequest> findById(String id) {
+		
+		GetResponse<ElasticRequest> response = null;
+		try {
+			response = elasticsearchClient.get(g ->
+					g.index(CollectionsIndexHelper.REQUISICAO_INDEX)
+					.id(id),
+					ElasticRequest.class);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		Optional<ElasticRequest> result = Optional.empty();
+		if (response.found()) {
+			result = Optional.ofNullable(response.source());
+		}
+		return result;
+	}
+	
 }
