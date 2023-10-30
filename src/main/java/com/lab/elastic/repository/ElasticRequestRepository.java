@@ -2,6 +2,7 @@ package com.lab.elastic.repository;
 
 import com.lab.elastic.repository.entidades.ElasticRequest;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -16,5 +17,7 @@ public interface ElasticRequestRepository {
 	ElasticRequest save(ElasticRequest dto);
 	
 	Optional<ElasticRequest> findById(String id);
+	
+	Optional<Map<String, Object>> find(String id);
 
 }

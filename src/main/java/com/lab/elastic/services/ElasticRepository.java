@@ -210,17 +210,27 @@ public class ElasticRepository implements ElasticRequestRepository {
 	
 	@Override
 	public Optional<ElasticRequest> findById(String id) {
+		return this.searchById(id, "teste-map-original-payload", ElasticRequest.class);
+	}
+	
+	@Override
+	public Optional<Map<String, Object>> find(String id) {
+		var result = Optional.empty();
+		Optional<?> opt = this.searchById(id, "teste-map-original-payload", Map.class);
+		return (Optional<Map<String, Object>>) opt;
+	}
+	
+	public <T> Optional<T> searchById(String id, String index, Class<T> classz) {
 		
-		GetResponse<ElasticRequest> response = null;
+		GetResponse<T> response = null;
 		try {
 			response = elasticsearchClient.get(g ->
-					g.index(CollectionsIndexHelper.REQUISICAO_INDEX)
-					.id(id),
-					ElasticRequest.class);
+							g.index(index)
+									.id(id), classz);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		Optional<ElasticRequest> result = Optional.empty();
+		Optional<T> result = Optional.empty();
 		if (response.found()) {
 			result = Optional.ofNullable(response.source());
 		}

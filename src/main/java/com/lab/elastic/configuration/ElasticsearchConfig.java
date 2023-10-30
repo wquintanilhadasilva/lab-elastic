@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -48,6 +49,8 @@ public class ElasticsearchConfig {
 				.setDefaultHeaders(compatibilityHeaders())
 				.setHttpClientConfigCallback(
 					httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+						.addInterceptorLast((HttpResponseInterceptor) (response, context) ->
+											response.addHeader("X-Elastic-Product", "Elasticsearch"))
 				);
 				
 		return builder.build();
