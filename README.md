@@ -30,7 +30,7 @@ curl --request POST \
 }'
 ```
 
-
+Enviar um json customizado informando onde obter o xml
 ```
 curl --request POST \
   --url 'http://localhost:7085/_find/map?payload=payload' \
@@ -50,10 +50,17 @@ curl --request POST \
 }'
 ```
 
-Ajustar a autenticação para Basic
+Apagar um registro no Elastic
 ```
 curl --request DELETE \
   --url http://localhost:9201/teste-map-original/_doc/DyzDbYsBt2yYRSfI1tfm \
   --header 'Authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ==' \
   --header 'User-Agent: insomnia/2023.5.8'
+```
+
+Obter usando Map<> como estrutura:
+
+```
+curl --request GET \
+  --url http://localhost:7085/_find/map/25I0gYsB3Z7fDw2lAfln
 ```
