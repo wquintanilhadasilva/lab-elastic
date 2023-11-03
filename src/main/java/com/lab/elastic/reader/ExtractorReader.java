@@ -242,6 +242,14 @@ public class ExtractorReader {
 				.asMap();
 	}
 	
+	public <T, V> Map<T, V> asMap() {
+		return ExtractorField.builder()
+				.value(extractions)
+				.field("")
+				.build()
+				.asMap();
+	}
+	
 	/**
 	 * Obtem a referência do Field
 	 *

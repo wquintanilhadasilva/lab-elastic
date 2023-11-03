@@ -19,6 +19,9 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 @Configuration
@@ -62,6 +65,11 @@ public class ElasticsearchConfig {
 		ElasticsearchTransport transport = new RestClientTransport(
 				restClient, new JacksonJsonpMapper(objectMapper));
 		return new ElasticsearchClient(transport);
+	}
+	
+	@Bean
+	public ElasticsearchTemplate elasticsearchTemplate(ElasticsearchClient client, ElasticsearchConverter elasticsearchConverter) {
+		return new ElasticsearchTemplate(client, elasticsearchConverter);
 	}
 	
 	private Header[] compatibilityHeaders() {

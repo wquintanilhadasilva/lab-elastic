@@ -73,5 +73,7 @@ public class CreateRequestDto {
 	/* Em caso de erro */
 	private Boolean indicadorErro;
 	private String mensagemDeErro;
+	
+	private String payload;
 
 }

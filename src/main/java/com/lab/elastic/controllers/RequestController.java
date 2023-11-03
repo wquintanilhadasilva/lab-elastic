@@ -29,12 +29,4 @@ public class RequestController {
 		return ResponseEntity.ok(dominio);
 	}
 	
-	@PostMapping("/map")
-	public ResponseEntity<?> inserir(@RequestParam(name = "payload")String payloaField, @RequestBody Map<String, String> dados) throws IOException {
-		log.info("Dados enviados [{}], campo payload [{}]", dados, payloaField);
-		var dto = mapper.toDto(dados);
-		createRequestService.process(dto);
-		return ResponseEntity.ok(dto);
-	}
-	
 }

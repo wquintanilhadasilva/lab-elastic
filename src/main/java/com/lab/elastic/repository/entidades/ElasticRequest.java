@@ -17,6 +17,7 @@ import org.springframework.data.elasticsearch.annotations.MultiField;
 import org.springframework.data.elasticsearch.annotations.Routing;
 import org.springframework.data.elasticsearch.annotations.Setting;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -179,5 +180,8 @@ public class ElasticRequest {
 	@MultiField(mainField = @Field(type = FieldType.Text, analyzer = ANALYZER),
 			otherFields = { @InnerField(suffix = "sort", type = FieldType.Keyword) })
 	private String mensagemDeErro;
+	
+	@Field(type = FieldType.Object)
+	private Map<String, Object> payload;
 	
 }

@@ -24,6 +24,8 @@ public interface RequestMapper {
 	
 	@Mapping(target = "id", source = "requestId")
 	@Mapping(target = "tipoRequisicao", source = "requestType")
+	@Mapping(target = "payload", ignore = true)
+	@Mapping(target = "emissor", source = "cnpj")
 	ElasticRequest toIndex(CreateRequestDto requisicaoDto);
 	
 	@Mapping(target = "cnpj", source="emissor")

@@ -1,7 +1,8 @@
 package com.lab.elastic.services;
 
 import com.lab.elastic.dto.CreateRequestDto;
-import com.lab.elastic.repository.ElasticRequestRepository;
+import com.lab.elastic.reader.ExtractorReader;
+import com.lab.elastic.repository.SpringElasticRequestRepository;
 import com.lab.elastic.services.converters.PayloadConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ import java.util.Optional;
 @Slf4j
 public class CreateRequestElastic implements CreateRequestResolver {
 	
-	private final ElasticRequestRepository elasticSearchRepository;
+	private final SpringElasticRequestRepository elasticSearchRepository;
 	private final RequestMapper requestMapper;
 	private final List<PayloadConverter> payloadConverter;
 	
@@ -46,8 +47,10 @@ public class CreateRequestElastic implements CreateRequestResolver {
 						requestDto.getModelo() + "}]")
 		);
 		
-		// Converte o conteúdo xml em json
-//		indexDocument.setPayload(converter.convert(indexDocument.getPayload()));
+		// Converte o conteúdo xml em json antes de gravar no Elastic
+		String payloadstr = converter.convert(requestDto.getPayload());
+		var extrator = new ExtractorReader(payloadstr);
+		indexDocument.setPayload(extrator.asMap());
 		indexDocument.setDataArmazenamento(DateTimeUtils.AMERICA_SAO_PAULO.now());
 		
 		var result = elasticSearchRepository.save(indexDocument);
