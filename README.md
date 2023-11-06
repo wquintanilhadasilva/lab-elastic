@@ -159,3 +159,22 @@ Para consultar, observe os operadores:
   "sort": []
 }
 ```
+
+```
+{
+  "query": {
+    "query_string": {
+      "query": "*"
+    }
+  },
+  "size": 10,
+  "from": 0,
+  "sort": [
+    {
+      "dataArmazenamento": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+```
