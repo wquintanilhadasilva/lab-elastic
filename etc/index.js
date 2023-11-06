@@ -9,10 +9,9 @@ const diretorioBase = './';
 
 //npm install xpath axios uuid
 
-function processarArquivo(arquivo) {
+async function processarArquivo(arquivo) {
   const xml = fs.readFileSync(arquivo, 'utf-8');
 
-  let cnpjNode = '';
   let nome = '';
   let ie = '';
   let cMunNode = '';
@@ -39,11 +38,10 @@ function processarArquivo(arquivo) {
     console.log(`cMun: ${cMunNode}`);
     console.log(`xMun: ${xNomeMun}`);
 
-
   });
 
-  const cnpjPrimeirosNoveDigitos = cnpj.slice(0, 8);
 
+  const cnpjPrimeirosNoveDigitos = cnpj.slice(0, 8);
 
   const meuObjetoJSON = {
     "requestId": uuidv4(),
@@ -85,31 +83,34 @@ function processarArquivo(arquivo) {
     "payload": xml
   };
 
-  console.log(`objeto: ${meuObjetoJSON}`);
-  const payload = JSON.stringify(meuObjetoJSON);
-  console.log(`payload: ${payload}`);
+  try {
+    console.log(`Enviando ======> ${arquivo}`);
+    const response = await axios.post('http://localhost:7085/request/', meuObjetoJSON, {'Content-Type': 'application/json'});
+    console.log(`Enviado: ${arquivo}`);
+  } catch (error) {
+    console.error(`Erro ao enviar ${arquivo}: ${error}`);
+  }
 
-  axios.post('http://localhost:7085/request/', meuObjetoJSON, {'Content-Type': 'application/json'})
-    .then((response) => {
-      console.log(`Enviado: ${arquivo}`);
-    })
-    .catch((error) => {
-      console.error(`Erro ao enviar ${arquivo}: ${error}`);
-    });
 }
 
-function processarDiretorio(diretorio) {
+async function processarDiretorio(diretorio) {
   const arquivos = fs.readdirSync(diretorio);
-  arquivos.forEach((arquivo) => {
+  for (const arquivo of arquivos) {
     const caminhoCompleto = path.join(diretorio, arquivo);
     if (fs.statSync(caminhoCompleto).isDirectory()) {
-      processarDiretorio(caminhoCompleto);
+      await processarDiretorio(caminhoCompleto);
     } else {
       if (arquivo.endsWith('.xml')) {
-        processarArquivo(caminhoCompleto);
+        await processarArquivo(caminhoCompleto);
       }
     }
-  });
+  }
 }
 
-processarDiretorio(diretorioBase);
+processarDiretorio(diretorioBase)
+  .then(() => {
+    console.log(`---- Fim do processamento! ----`);
+  })
+  .catch(error => {
+    console.error('Erro ao processar diretório:', error);
+  });
