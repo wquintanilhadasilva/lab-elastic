@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const xpath = require('xpath');
-const dom = require('xmldom').DOMParser;
+const xml2js = require('xml2js');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
@@ -11,22 +11,39 @@ const diretorioBase = './';
 
 function processarArquivo(arquivo) {
   const xml = fs.readFileSync(arquivo, 'utf-8');
-  const doc = new dom().parseFromString(xml);
-  const cnpjNode = xpath.select1('//nfe:CNPJ', doc, true, { nfe: 'http://www.portalfiscal.inf.br/nfcom' });
-  const nome = xpath.select1('//nfe:xNome', doc, true, { nfe: 'http://www.portalfiscal.inf.br/nfcom' }).firstChild.data;
-  const ie = xpath.select1('//nfe:IE', doc, true, { nfe: 'http://www.portalfiscal.inf.br/nfcom' }).firstChild.data;
-  const cMunNode = xpath.select1('//nfe:cMun', doc, true, { nfe: 'http://www.portalfiscal.inf.br/nfcom' }).firstChild.data;
-  const xNomeMun = xpath.select1('//nfe:xMun', doc, true, { nfe: 'http://www.portalfiscal.inf.br/nfcom' }).firstChild.data;
-  const cnpj = cnpjNode.firstChild.data;
+
+  let cnpjNode = '';
+  let nome = '';
+  let ie = '';
+  let cMunNode = '';
+  let xNomeMun = '';
+  let cnpj = '';
+
+
+  xml2js.parseString(xml, (err, result) => {
+    if (err) {
+      console.error('Erro ao processar o XML:', err);
+      return;
+    }
+
+    emitente = result.NFCom.infNFCom[0].emit[0];
+    cnpj = emitente.CNPJ[0];
+    nome = emitente.xNome[0];
+    ie = emitente.IE[0];
+    cMunNode = emitente.enderEmit[0].cMun[0];
+    xNomeMun = emitente.enderEmit[0].xMun[0];
+
+    console.log(`CNPJ: ${cnpj}`);
+    console.log(`xNome: ${nome}`);
+    console.log(`IE: ${ie}`);
+    console.log(`cMun: ${cMunNode}`);
+    console.log(`xMun: ${xNomeMun}`);
+
+
+  });
 
   const cnpjPrimeirosNoveDigitos = cnpj.slice(0, 8);
 
-//  const payload = JSON.stringify({
-//    emissor: cnpj,
-//    payload: xml,
-//    requestid: uuidv4(),
-//    uuid: uuidv4()
-//  });
 
   const meuObjetoJSON = {
     "requestId": uuidv4(),
@@ -68,9 +85,11 @@ function processarArquivo(arquivo) {
     "payload": xml
   };
 
+  console.log(`objeto: ${meuObjetoJSON}`);
   const payload = JSON.stringify(meuObjetoJSON);
+  console.log(`payload: ${payload}`);
 
-  axios.post('http://localhost:7085/request/', payload)
+  axios.post('http://localhost:7085/request/', meuObjetoJSON, {'Content-Type': 'application/json'})
     .then((response) => {
       console.log(`Enviado: ${arquivo}`);
     })
