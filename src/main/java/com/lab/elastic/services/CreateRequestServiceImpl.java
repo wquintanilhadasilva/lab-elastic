@@ -3,6 +3,7 @@ package com.lab.elastic.services;
 import com.lab.elastic.dto.CreateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -23,6 +24,7 @@ public class CreateRequestServiceImpl implements CreateRequestService {
 //	private final DadosEmpresaService dadosEmpresaService;
 	
 	@Override
+	@Async
 	public void process(CreateRequestDto requestDto) {
 //		// Obtém os dados da empresa que está realizando a requisição de emissão
 //		DadosEmpresaDTO emissor = dadosEmpresaService.getByEmissor(requestDto.getCnpj());
