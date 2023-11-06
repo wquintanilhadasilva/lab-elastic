@@ -111,3 +111,51 @@ curl --request POST \
 }
 '
 ```
+
+
+
+# Elastic Queries
+
+Para consultar, observe os operadores:
+
+```		
+{
+  "query": {
+    "terms": {
+      "payload.NFCom.infNFCom.ide.nNF": ["100", "101", "110"]
+    }
+  },
+  "size": 10,
+  "from": 0,
+  "sort": []
+}
+```
+
+```
+{
+  "query": {
+    "range": {
+      "payload.NFCom.infNFCom.ide.nNF": {
+        "gte": 100,
+        "lte": 200
+      }
+    }
+  },
+  "size": 10,
+  "from": 0,
+  "sort": []
+}
+```
+
+```
+{
+  "query": {
+    "match": {
+      "payload.NFCom.infNFCom.ide.nNF": "100"
+    }
+  },
+  "size": 10,
+  "from": 0,
+  "sort": []
+}
+```
