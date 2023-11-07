@@ -13,6 +13,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.elasticsearch.annotations.InnerField;
+import org.springframework.data.elasticsearch.annotations.Mapping;
 import org.springframework.data.elasticsearch.annotations.MultiField;
 import org.springframework.data.elasticsearch.annotations.Routing;
 import org.springframework.data.elasticsearch.annotations.Setting;
@@ -36,7 +37,8 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString
 @Document(indexName = CollectionsIndexHelper.REQUISICAO_INDEX)
-@Setting(settingPath = CollectionsIndexHelper.DEFAULT_SETTING)
+@Setting(settingPath = CollectionsIndexHelper.DEFAULT_SETTING, shards = 3)
+@Mapping(mappingPath = "/elasticsearch/mappings/mapping-request.json")
 @Routing("cnpjBase")
 public class ElasticRequest {
 	
