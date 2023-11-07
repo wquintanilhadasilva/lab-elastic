@@ -183,7 +183,7 @@ public class ElasticRequest {
 			otherFields = { @InnerField(suffix = "sort", type = FieldType.Keyword) })
 	private String mensagemDeErro;
 	
-	@Field(type = FieldType.Object)
+	@Field(type = FieldType.Object, index = false)
 	private Map<String, Object> payload;
 	
 }

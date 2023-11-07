@@ -24,10 +24,34 @@ services:
             hard: -1
     volumes:
       - ./relatorios:/usr/share/elasticsearch/data
+#    environment:
+#      - cluster.name=lab-elastic
+#      - discovery.seed_hosts=elasticsearch2
+#      - cluster.initial_master_nodes=elasticsearch,elasticsearch2
     ports:
       - 9201:9200
     networks:
       - lab-network
+
+#  elasticsearch2:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.2
+#    container_name: elasticsearch
+#    env_file:
+#      - ./.env/elasticsearch.env
+#    ulimits:
+#      memlock:
+#        soft: -1
+#        hard: -1
+#    volumes:
+#      - ./relatorios2:/usr/share/elasticsearch/data
+#    environment:
+#      - cluster.name=lab-elastic
+#      - discovery.seed_hosts=elasticsearch2
+#      - cluster.initial_master_nodes=elasticsearch,elasticsearch2
+#    ports:
+#      - 9202:9200
+#    networks:
+#      - lab-network
 
 networks:
   lab-network:

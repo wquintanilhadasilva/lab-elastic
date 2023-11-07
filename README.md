@@ -178,3 +178,21 @@ Para consultar, observe os operadores:
   ]
 }
 ```
+
+
+Verificar os mapeamentos:
+
+```
+curl --request GET \
+  --url http://localhost:9201/requisicoes-index/_mapping \
+  --header 'Authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ=='
+```
+
+
+Verificar as configurações
+
+```
+curl --request GET \
+  --url http://localhost:9201/requisicoes-index/_settings \
+  --header 'Authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ=='
+```

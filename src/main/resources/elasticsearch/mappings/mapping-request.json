@@ -1,42 +1,38 @@
 {
-	"mappings": {
+	"payload": {
+		"type": "object",
 		"properties": {
-			"payload": {
+			"NFCom": {
 				"type": "object",
 				"properties": {
-					"NFCom": {
+					"infNFCom": {
 						"type": "object",
 						"properties": {
-							"infNFCom": {
+							"ide": {
 								"type": "object",
 								"properties": {
-									"ide": {
-										"type": "object",
-										"properties": {
-											"nNF": { "type": "keyword" },
-											"cNF": { "type": "keyword" },
-											"serie": { "type": "keyword" },
-											"tpAmb": { "type": "keyword" },
-											"tpEmis": { "type": "keyword" },
-											"dhEmi": { "type": "date", "format": "yyyy-MM-dd'T'HH:mm:ssZ" }
-										}
-									},
-									"emit": {
-										"type": "object",
-										"properties": {
-											"CNPJ": { "type": "keyword" },
-											"IE": { "type": "keyword" },
-											"xNome": { "type": "text" }
-										}
-									},
-									"dest": {
-										"type": "object",
-										"properties": {
-											"CNPJ": { "type": "keyword" },
-											"IE": { "type": "keyword" },
-											"xNome": { "type": "text" }
-										}
-									}
+									"nNF": { "type": "keyword" },
+									"cNF": { "type": "keyword" },
+									"serie": { "type": "keyword" },
+									"tpAmb": { "type": "keyword" },
+									"tpEmis": { "type": "keyword" },
+									"dhEmi": { "type": "date", "format": "strict_date_optional_time||epoch_millis" }
+								}
+							},
+							"emit": {
+								"type": "object",
+								"properties": {
+									"CNPJ": { "type": "keyword" },
+									"IE": { "type": "keyword" },
+									"xNome": { "type": "text" }
+								}
+							},
+							"dest": {
+								"type": "object",
+								"properties": {
+									"CNPJ": { "type": "keyword" },
+									"IE": { "type": "keyword" },
+									"xNome": { "type": "text" }
 								}
 							}
 						}

@@ -52,7 +52,7 @@ async function processarArquivo(arquivo) {
     "nomeFantasiaNormalizado": nome,
     "razaoSocialNormalizado": nome,
     "nomeExibicaoNormalizado": nome,
-    "filialId": ie,
+    "filialId": ie.replace(/[^0-9]/g, ''),
     "cnpj": cnpj,
     "filialNomeApresentacao": "Filial 1",
     "filialInscricaoMunicipal": "123456",
