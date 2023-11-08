@@ -196,3 +196,38 @@ curl --request GET \
   --url http://localhost:9201/requisicoes-index/_settings \
   --header 'Authorization: Basic ZWxhc3RpYzpjaGFuZ2VtZQ=='
 ```
+
+# Fix
+
+## Elasticsearch cluster
+
+Max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+
+Powershel:
+```
+wsl -d docker-desktop
+```
+
+```
+sysctl -w vm.max_map_count=262144
+```
+
+```
+exit
+```
+
+Para permanecer após reiniciar, edite o arquivo:
+
+```
+vi /etc/sysctl.conf
+```
+
+Acrescente a ele:
+
+```
+vm.max_map_count = 262144
+```
+
+Salve e saia do vi `:wq!`
+
+Reinicie o docker-compose e voil'á!
