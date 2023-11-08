@@ -1,6 +1,7 @@
 package com.lab.elastic.services;
 
 import com.lab.elastic.dto.CreateRequestDto;
+import org.springframework.scheduling.annotation.Async;
 
 /**
  * Serviço para criar uma nova requisição

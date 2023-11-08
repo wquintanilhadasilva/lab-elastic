@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class CreateRequestMongo implements CreateRequestResolver {
 	private final RequestMapper requestMapper;
 	
 	@Override
+	@Async
 	public void accept(CreateRequestDto requestDto) {
 		log.debug("Verificar se já existe uma requisição para [{}]", requestDto.getRequestId());
 		if (existeRequisicao(requestDto)) {

@@ -6,6 +6,7 @@ import com.lab.elastic.repository.SpringElasticRequestRepository;
 import com.lab.elastic.services.converters.PayloadConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class CreateRequestElastic implements CreateRequestResolver {
 	private final List<PayloadConverter> payloadConverter;
 	
 	@Override
+	@Async
 	public void accept(CreateRequestDto requestDto) {
 		log.debug("Verificar se já existe uma requisição para [{}]", requestDto.getRequestId());
 		if (existeRequisicao(requestDto)) {
