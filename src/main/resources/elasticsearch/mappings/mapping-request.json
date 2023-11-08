@@ -1,38 +1,50 @@
 {
-	"payload": {
-		"type": "object",
-		"properties": {
-			"NFCom": {
-				"type": "object",
-				"properties": {
-					"infNFCom": {
-						"type": "object",
-						"properties": {
-							"ide": {
-								"type": "object",
-								"properties": {
-									"nNF": { "type": "keyword" },
-									"cNF": { "type": "keyword" },
-									"serie": { "type": "keyword" },
-									"tpAmb": { "type": "keyword" },
-									"tpEmis": { "type": "keyword" },
-									"dhEmi": { "type": "date", "format": "strict_date_optional_time||epoch_millis" }
-								}
-							},
-							"emit": {
-								"type": "object",
-								"properties": {
-									"CNPJ": { "type": "keyword" },
-									"IE": { "type": "keyword" },
-									"xNome": { "type": "text" }
-								}
-							},
-							"dest": {
-								"type": "object",
-								"properties": {
-									"CNPJ": { "type": "keyword" },
-									"IE": { "type": "keyword" },
-									"xNome": { "type": "text" }
+	"dynamic_templates": [
+		{
+			"payload_template": {
+				"path_match": "payload.*",
+				"mapping": {
+					"type": "object"
+				}
+			}
+		}
+	],
+	"properties": {
+		"payload": {
+			"type": "object",
+			"properties": {
+				"NFCom": {
+					"type": "object",
+					"properties": {
+						"infNFCom": {
+							"type": "object",
+							"properties": {
+								"ide": {
+									"type": "object",
+									"properties": {
+										"nNF": { "type": "keyword" },
+										"cNF": { "type": "keyword" },
+										"serie": { "type": "keyword" },
+										"tpAmb": { "type": "keyword" },
+										"tpEmis": { "type": "keyword" },
+										"dhEmi": { "type": "date", "format": "strict_date_optional_time||epoch_millis" }
+									}
+								},
+								"emit": {
+									"type": "object",
+									"properties": {
+										"CNPJ": { "type": "keyword" },
+										"IE": { "type": "keyword" },
+										"xNome": { "type": "text" }
+									}
+								},
+								"dest": {
+									"type": "object",
+									"properties": {
+										"CNPJ": { "type": "keyword" },
+										"IE": { "type": "keyword" },
+										"xNome": { "type": "text" }
+									}
 								}
 							}
 						}
