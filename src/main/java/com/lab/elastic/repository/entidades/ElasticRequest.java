@@ -36,7 +36,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Document(indexName = "requisicoes-index2") //CollectionsIndexHelper.REQUISICAO_INDEX
+@Document(indexName = CollectionsIndexHelper.REQUISICAO_INDEX)
 @Setting(settingPath = CollectionsIndexHelper.DEFAULT_SETTING, shards = 3)
 @Mapping(mappingPath = "/elasticsearch/mappings/mapping-request.json")
 @Routing("cnpjBase")
