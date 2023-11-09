@@ -1,4 +1,14 @@
 {
+	"dynamic_templates": [
+		{
+			"payload_template": {
+				"path_match": "payload.*",
+				"mapping": {
+					"type": "keyword"
+				}
+			}
+		}
+	],
 	"properties": {
 		"payload": {
 			"type": "object",
